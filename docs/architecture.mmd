@@ -1,0 +1,11 @@
+flowchart TD
+    U[User in browser] --> UI[Static browser UI]
+    UI -->|POST code + task| API[FastAPI validation and limits]
+    API --> AST[Python AST heuristic checks]
+    AST --> R[Offline summary / task scaffold]
+    API -->|Only if explicitly selected and configured| LLM[OpenAI-compatible chat endpoint]
+    AST --> OUT[Response with findings and caveats]
+    R --> OUT
+    LLM --> OUT
+    OUT --> UI
+    AST -. never imports or executes submitted code .-> SAFE[No code execution]

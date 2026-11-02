@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101923">
+  <title>CodePilot — Coding assistant</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0d141c; --panel:#141f2a; --panel2:#1a2835; --line:#2b3c4c; --muted:#9aabba; --text:#edf4f8; --mint:#83e1c3; --blue:#91bfff; --amber:#f2c77d; }
+    * { box-sizing:border-box } body { margin:0; background:radial-gradient(ellipse at 76% -5%,#203646 0,transparent 40%),var(--bg); color:var(--text); font:15px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif }
+    .wrap { max-width:1200px; margin:auto; padding:32px 22px 60px } header { display:flex; align-items:center; justify-content:space-between; gap:20px; margin-bottom:30px }
+    .brand { display:flex; align-items:center; gap:13px } .mark { display:grid; place-items:center; width:44px;height:44px;border-radius:14px;background:linear-gradient(145deg,#82e4c4,#4aa8ba); color:#0d1a22;font-weight:900;font-size:20px }
+    h1 { font-size:22px; letter-spacing:-.03em; margin:0 } .tag { color:var(--muted); font-size:13px } .status { color:var(--mint); font-size:12px; border:1px solid #315b54; border-radius:99px; padding:6px 10px }
+    .intro { margin:0 0 22px } .intro h2 { font-size:clamp(25px,4vw,36px); letter-spacing:-.04em; margin:0 0 6px } .intro p { max-width:760px; color:var(--muted); margin:0 }
+    .notice { border:1px solid #60502f; background:#282419; color:#e9d5a8; padding:12px 15px; border-radius:12px; font-size:13px; margin:18px 0 22px }
+    .grid { display:grid; grid-template-columns:minmax(0,1.1fr) minmax(340px,.9fr); gap:18px; align-items:start } .panel { background:linear-gradient(180deg,#17232e,#131c25); border:1px solid var(--line); border-radius:16px; padding:18px; box-shadow:0 15px 35px #0002 }
+    label { display:block; font-size:13px; font-weight:650; margin:0 0 7px } select,textarea,input { font:inherit; color:var(--text); background:#0d151d; border:1px solid #344858; border-radius:9px; outline:none } select:focus,textarea:focus { border-color:#75d8ba; box-shadow:0 0 0 3px #75d8ba20 }
+    .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:15px } select { width:100%; padding:10px 11px } textarea { width:100%; resize:vertical; padding:12px; font:13px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace }
+    #code { min-height:330px; tab-size:4 } #context { min-height:74px; margin-bottom:13px; font:14px/1.5 inherit }
+    .actions { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:12px } button { border:0; border-radius:9px; padding:10px 15px; background:var(--mint); color:#10211e; font-weight:750; cursor:pointer } button:disabled { opacity:.55;cursor:wait } .secondary { color:var(--text); background:#253543; border:1px solid #395064 }
+    .toggle { display:flex; align-items:flex-start; gap:8px; color:var(--muted); font-size:12px; font-weight:450; max-width:390px } .toggle input { accent-color:#83e1c3; margin-top:3px }
+    .result-head { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:13px } .result-head h3 { margin:0;font-size:16px } .badge { color:var(--blue); background:#1a2b3d;border:1px solid #2a4560;padding:4px 9px;border-radius:99px;font-size:11px }
+    #result { min-height:170px; max-height:480px; overflow:auto; white-space:pre-wrap; overflow-wrap:anywhere; color:#dae5eb; background:#0d151d; border:1px solid #293a48; border-radius:10px; padding:14px; font:13px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace }
+    .empty { color:#708393 } .findings { margin-top:15px } .finding { border-left:3px solid var(--amber); padding:8px 10px; margin:8px 0; background:#17222c; border-radius:0 8px 8px 0; font-size:13px } .finding strong { color:#f1d59e } .finding small { color:var(--muted); display:block }
+    .facts { display:flex; flex-wrap:wrap; gap:7px; margin:11px 0 } .chip { padding:4px 8px; border-radius:99px; font-size:11px; color:#b9cad5; background:#1c2a36; border:1px solid #304353 }
+    .foot { color:var(--muted);font-size:12px;margin-top:20px } .foot a {color:var(--blue)} .spinner { display:none; color:var(--mint); font-size:12px }
+    @media(max-width:850px){.grid{grid-template-columns:1fr}.wrap{padding:22px 15px 40px}#code{min-height:260px}} @media(max-width:520px){header{align-items:flex-start}.status{display:none}.row{grid-template-columns:1fr}.panel{padding:14px}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header><div class="brand"><div class="mark">&lt;/&gt;</div><div><h1>CodePilot</h1><div class="tag">A local-first coding companion</div></div></div><div class="status" id="health">Checking local service…</div></header>
+  <section class="intro"><h2>Understand the code. Keep the final say.</h2><p>Explain a snippet, inspect likely issues, draft improvements or tests, and get a structural summary. Start with safe offline checks; optionally request a configured model for deeper review.</p></section>
+  <div class="notice"><strong>Important:</strong> Suggestions can be wrong or incomplete. Code is never executed by this app. Offline checks are limited heuristics, not proof of correctness; review changes and run your own tests.</div>
+  <main class="grid">
+    <section class="panel">
+      <div class="row"><div><label for="task">What do you need?</label><select id="task"><option value="explain">Explain code</option><option value="bugs">Find likely bugs</option><option value="improve">Suggest improvements</option><option value="tests">Generate test draft</option><option value="summarize">Summarize file</option></select></div><div><label for="language">Language</label><select id="language"><option>Python</option><option>JavaScript</option><option>TypeScript</option><option>Java</option><option>C++</option><option>Go</option><option>Rust</option><option>Other</option></select></div></div>
+      <label for="code">Paste code <span class="tag">(up to 24,000 characters)</span></label><textarea id="code" spellcheck="false" placeholder="Paste a code snippet or file here…"></textarea>
+      <label for="context">Optional context</label><textarea id="context" placeholder="What should this code do? Any errors, constraints, or framework details? (up to 3,000 characters)"></textarea>
+      <div class="actions"><button id="run">Analyze code</button><button id="sample" class="secondary">Load safe sample</button><span id="busy" class="spinner">Working…</span><label class="toggle"><input id="useModel" type="checkbox"><span>Use configured model for this request. This sends the pasted code and context to the provider configured by the app owner.</span></label></div>
+    </section>
+    <section class="panel"><div class="result-head"><h3>Assistant response</h3><span class="badge" id="mode">Ready</span></div><div id="result" class="empty">Your review will appear here. In offline mode, Python gets a small set of AST-based checks. Other languages receive general offline guidance.</div><div class="facts" id="facts"></div><div class="findings" id="findings"></div><div id="warning" class="foot"></div></section>
+  </main>
+  <p class="foot">Local prototype; no authentication, quotas, or production security review. Model mode may transmit code to the configured provider. Avoid pasting credentials, private data, or proprietary code unless you are comfortable with that provider's terms. The assistant does not retain submissions intentionally; hosting, logs, and temporary storage are outside this prototype's guarantees. API docs: <a href="/docs">/docs</a>.</p>
+</div>
+<script>
+  const $ = id => document.getElementById(id);
+  const sample = `def average(values=[]):\n    total = sum(values)\n    return total / len(values)\n\ndef label_score(score):\n    if score == None:\n        return "unknown"\n    try:\n        return "high" if score > 0.8 else "normal"\n    except:\n        return "unknown"\n`;
+  $('sample').addEventListener('click', () => { $('code').value = sample; $('context').value = 'Review this small example. Consider empty input and repeated calls.'; });
+  fetch('/health').then(r=>r.json()).then(h=>{ $('health').textContent = h.model_available ? `Local service · optional ${h.model} configured` : 'Local service · offline mode available'; }).catch(()=>{ $('health').textContent='Service status unavailable'; });
+  $('run').addEventListener('click', async () => {
+    const code = $('code').value;
+    if (!code.trim()) { $('result').textContent = 'Paste some code first.'; return; }
+    $('run').disabled = true; $('busy').style.display = 'inline'; $('mode').textContent='Working'; $('warning').textContent=''; $('findings').replaceChildren(); $('facts').replaceChildren();
+    try {
+      const response = await fetch('/api/analyze', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({task:$('task').value, language:$('language').value, code, context:$('context').value, use_model:$('useModel').checked})});
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || 'Request failed');
+      $('result').textContent = data.result; $('result').classList.remove('empty'); $('mode').textContent = data.mode;
+      $('warning').textContent = data.warning + (data.code_was_executed ? ' Warning: execution occurred.' : ' Code execution: none.');
+      const facts = data.facts;
+      [`${facts.lines} lines`, facts.parseable ? 'Python AST parsed' : `${facts.language} structure not parsed`, `${facts.functions.length} function(s)`, `${facts.classes.length} class(es)`].forEach(text=>{const e=document.createElement('span');e.className='chip';e.textContent=text;$('facts').append(e)});
+      data.findings.forEach(f=>{const e=document.createElement('div');e.className='finding';const title=document.createElement('strong');title.textContent=`${f.severity.toUpperCase()} · ${f.rule} · ${f.title}${f.line?` (line ${f.line})`:''}`;const detail=document.createElement('div');detail.textContent=f.detail;const small=document.createElement('small');small.textContent=f.suggestion;$('findings').append(e);e.append(title,detail,small)});
+    } catch (error) { $('result').textContent = `Could not complete the request: ${error.message}`; $('mode').textContent='Error'; $('warning').textContent='The server returned no assistant result.'; }
+    finally { $('run').disabled=false; $('busy').style.display='none'; }
+  });
+</script>
+</body>
+</html>

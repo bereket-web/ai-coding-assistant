@@ -1,0 +1,48 @@
+{
+  "type": "synthetic regression smoke test; not a benchmark",
+  "cases": 5,
+  "expected_rule_matches": 5,
+  "results": [
+    {
+      "case": "mutable_default",
+      "expected_rule": "PY101",
+      "matched": true,
+      "observed_rules": [
+        "PY101"
+      ]
+    },
+    {
+      "case": "bare_except",
+      "expected_rule": "PY102",
+      "matched": true,
+      "observed_rules": [
+        "PY102"
+      ]
+    },
+    {
+      "case": "dynamic_eval",
+      "expected_rule": "PY104",
+      "matched": true,
+      "observed_rules": [
+        "PY104"
+      ]
+    },
+    {
+      "case": "none_equality",
+      "expected_rule": "PY105",
+      "matched": true,
+      "observed_rules": [
+        "PY105"
+      ]
+    },
+    {
+      "case": "syntax_error",
+      "expected_rule": "PY001",
+      "matched": true,
+      "observed_rules": [
+        "PY001"
+      ]
+    }
+  ],
+  "limitations": "Hand-authored cases demonstrate only that the coded rules trigger on these examples; no real-world precision, recall, safety, or usefulness is estimated."
+}
