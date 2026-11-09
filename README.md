@@ -86,4 +86,4 @@ src/codepilot/        FastAPI service, AST heuristics, optional model client, br
 
 ## Release status
 
-This project is built for local use. It does not create a GitHub repository, Hugging Face artifact, or hosted demo. Public GitHub release remains pending access under the portfolio's approved `bereket-web` owner; no publication under the connected `bereket74` account was attempted. No project-scoped Hugging Face token was used.
+Source is published at [bereket-web/ai-coding-assistant](https://github.com/bereket-web/ai-coding-assistant); GitHub Actions CI passes on Python 3.10 and 3.12. The application remains a local-use prototype: there is no hosted demo, Hugging Face artifact, or live evaluation of the optional provider mode.
